@@ -1,5 +1,7 @@
 package io.socket.engineio.client;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import org.junit.After;
 import org.junit.Before;
 
@@ -15,7 +17,7 @@ public abstract class Connection {
 
     private static final Logger logger = Logger.getLogger(Socket.class.getName());
 
-    final static int TIMEOUT = 10000;
+    final static int TIMEOUT = 1_000_000;
     final static int PORT = 3000;
 
     private Process serverProcess;
@@ -78,7 +80,19 @@ public abstract class Connection {
 
     Socket.Options createOptions() {
         Socket.Options opts = new Socket.Options();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        HttpLoggingInterceptor interceptor=new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+            @Override
+            public void log(String message) {
+                System.out.println(message);
+            }
+        });
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        okHttpClient = okHttpClient.newBuilder().addInterceptor(interceptor).build();
+        opts.callFactory = okHttpClient;
+        opts.webSocketFactory = okHttpClient;
         opts.port = PORT;
+        opts.rememberUpgrade = true;
         return opts;
     }
 

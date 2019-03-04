@@ -2,12 +2,7 @@ package io.socket.engineio.client.transports;
 
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -211,7 +206,7 @@ public class PollingXHR extends Polling {
             }
 
             okhttp3.Request request = requestBuilder
-                    .url(HttpUrl.parse(self.uri))
+                    .url(Objects.requireNonNull(HttpUrl.parse(self.uri)))
                     .method(self.method, body)
                     .build();
 

@@ -9,6 +9,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -54,12 +55,17 @@ public class ConnectionTest extends Connection {
                     public void call(Object... args) {
                         if ("hi".equals(args[0])) return;
                         values.offer(args[0]);
-                        socket.close();
+//                        socket.close();
                     }
                 });
             }
         });
         socket.open();
+        int times=1000_000_000;
+        for (int i=0;i<times;i++){
+            TimeUnit.MILLISECONDS.sleep(100);
+            socket.send("第"+i+"次请求!");
+        }
 
         assertThat((String)values.take(), is("cash money €€€"));
     }

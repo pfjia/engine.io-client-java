@@ -7,6 +7,7 @@ import org.junit.runners.JUnit4;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -88,5 +89,31 @@ public class EventThreadTest {
             assertThat(queue.take(), is(i));
         }
         assertThat(threads.size(), is(1));
+    }
+
+    @Test
+    public void doubleNexttick()throws InterruptedException{
+        final BlockingQueue<Integer> queue = new LinkedBlockingQueue<>();
+        final Set<Thread> threads = new HashSet<>();
+        EventThread.exec(new Runnable() {
+            @Override
+            public void run() {
+                threads.add(Thread.currentThread());
+                queue.offer(0);
+                System.out.println(queue.size());
+                EventThread.nextTick(new Runnable() {
+                    @Override
+                    public void run() {
+                        threads.add(Thread.currentThread());
+                        queue.offer(1);
+                        System.out.println(queue.size());
+                    }
+                });
+            }
+        });
+        for (int i = 0; i < 2; i++) {
+            assertThat(queue.take(), is(i));
+        }
+        assertThat(threads.size(),is(1));
     }
 }
